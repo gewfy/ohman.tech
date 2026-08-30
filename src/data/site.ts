@@ -31,7 +31,7 @@ export const site = {
       },
       {
         label: 'Software',
-        value: 'Firmware/back-end/web/app-development, AI/LLM/ML, API/cloud integration, live dashboards, sensors and data logging'
+        value: 'Firmware, back-end and web development, API and cloud integration, databases and data pipelines'
       }
     ]
   }
