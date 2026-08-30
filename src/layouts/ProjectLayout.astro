@@ -2,7 +2,6 @@
 import BaseLayout from './BaseLayout.astro';
 import Gallery from '../components/Gallery.astro';
 import Shot from '../components/Shot.astro';
-import Video from '../components/Video.astro';
 import { getImage } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import { site } from '../data/site';
@@ -14,7 +13,7 @@ interface Props {
 }
 
 const { project, hasCopy = false } = Astro.props;
-const { title, titleLines, description, quote, lead, facts, gallery, video, notes } =
+const { title, titleLines, description, quote, lead, facts, gallery, notes } =
   project;
 
 const hasFacts = (facts?.length ?? 0) > 0;
@@ -83,8 +82,6 @@ const share = await getImage({
         </div>
       )
     }
-
-    {video && <Video {...video} />}
 
     {galleryItems.length > 0 && (
       <Gallery items={galleryItems} eagerFirst={!showIntro} />

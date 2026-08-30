@@ -51,8 +51,7 @@ slug. Frontmatter carries the structure, the MDX body carries the prose.
 - `facts` are optional label/value pairs in the middle column. Values may
   contain inline HTML, so a client name can link out. Omit the field to drop
   the spec column.
-- `gallery` is the ordered list of photographs (see below).
-- `video` is an optional YouTube or Vimeo embed, dropped straight into the page.
+- `gallery` is the ordered list of photographs and optional video embeds (see below).
 - `notes` are the footnotes under the photographs, again allowing inline HTML.
 
 Captions appear in the full-screen viewer only, never under a tile. They may
@@ -70,11 +69,18 @@ columns it wants:
 | `tall`   | one column (default)      | portrait, square   |
 | `wide`   | two columns               | landscape          |
 | `half`   | half of one column        | landscape          |
+| `full`   | the whole row, 16:9       | video embeds       |
 
 Two consecutive `half` shots become a stack sharing one column, so a band adds
 up to three: `wide + tall`, `tall + wide`, `tall + stack + tall`, or three
-`tall`s. Tiles are cropped to the band, so pick shapes that survive it — the
-`assets` script prints the shape of every file.
+`tall`s. A `full` tile is its own band. Photograph tiles are cropped to the
+band, so pick shapes that survive it — the `assets` script prints the shape of
+every file.
+
+A video item is a YouTube or Vimeo embed in the same list, with `provider`,
+`id`, and `title` instead of `src`. Default layout is `full` (the whole row at
+16:9, so the player chrome is not cropped). `wide`, `tall`, and `half` put it
+on the same tiles as photographs; the 16:9 player is cropped to the tile, like a still.
 
 ## Deploying
 

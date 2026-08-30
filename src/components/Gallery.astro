@@ -1,11 +1,15 @@
 ---
 import Shot from './Shot.astro';
+import Video from './Video.astro';
 import type { ShotData } from './Shot.astro';
+import type { FilmData } from './Video.astro';
+
+export type GalleryItem = ShotData | FilmData;
 
 interface Props {
-  items: ShotData[];
+  items: GalleryItem[];
   label?: string;
-  /** First tile is the LCP image when the gallery opens the page. */
+  /** First photograph is the LCP image when the gallery opens the page. */
   eagerFirst?: boolean;
 }
 
@@ -15,42 +19,63 @@ const {
   eagerFirst = false
 } = Astro.props;
 
+const isFilm = (item: GalleryItem): item is FilmData => 'provider' in item;
+
 /**
- * Bands of three columns: an upright tile takes one, a wide tile two, and a
- * pair of `half` shots splits one column into two rows. Consecutive halves
- * are what make a stack, so authors only order the list.
+ * Bands of three columns: an upright tile takes one, a wide tile two, a full
+ * tile the whole row, and a pair of `half` shots splits one column as a stack.
  */
-type Band = { kind: 'shot'; shot: ShotData } | { kind: 'stack'; shots: ShotData[] };
+type Band =
+  | { kind: 'tile'; item: GalleryItem }
+  | { kind: 'stack'; items: GalleryItem[] };
 
 const bands: Band[] = [];
-for (const shot of items) {
+for (const item of items) {
   const open = bands.at(-1);
-  if (shot.layout === 'half' && open?.kind === 'stack' && open.shots.length < 2) {
-    open.shots.push(shot);
-  } else if (shot.layout === 'half') {
-    bands.push({ kind: 'stack', shots: [shot] });
+  if (item.layout === 'half' && open?.kind === 'stack' && open.items.length < 2) {
+    open.items.push(item);
+  } else if (item.layout === 'half') {
+    bands.push({ kind: 'stack', items: [item] });
   } else {
-    bands.push({ kind: 'shot', shot });
+    bands.push({ kind: 'tile', item });
   }
 }
 ---
 
 <section class="gallery" data-gallery aria-label={label}>
   {
-    bands.map((band, i) =>
-      band.kind === 'shot' ? (
-        <Shot
-          {...band.shot}
-          variant={band.shot.layout ?? 'tall'}
-          eager={eagerFirst && i === 0}
+    bands.map((band, i) => {
+      if (band.kind === 'stack') {
+        return (
+          <div class="gallery__stack">
+            {band.items.map((item, n) => {
+              const eager = eagerFirst && i === 0 && n === 0 && !isFilm(item);
+              return isFilm(item) ? (
+                <Video
+                  provider={item.provider}
+                  id={item.id}
+                  title={item.title}
+                  variant={item.layout ?? 'full'}
+                />
+              ) : (
+                <Shot {...item} variant={item.layout ?? 'tall'} eager={eager} />
+              );
+            })}
+          </div>
+        );
+      }
+
+      const eager = eagerFirst && i === 0 && !isFilm(band.item);
+      return isFilm(band.item) ? (
+        <Video
+          provider={band.item.provider}
+          id={band.item.id}
+          title={band.item.title}
+          variant={band.item.layout ?? 'full'}
         />
       ) : (
-        <div class="gallery__stack">
-          {band.shots.map((shot, n) => (
-            <Shot {...shot} variant="half" eager={eagerFirst && i === 0 && n === 0} />
-          ))}
-        </div>
-      )
-    )
+        <Shot {...band.item} variant={band.item.layout ?? 'tall'} eager={eager} />
+      );
+    })
   }
 </section>

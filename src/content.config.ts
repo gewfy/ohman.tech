@@ -6,11 +6,14 @@ import type { SchemaContext } from 'astro:content';
 /**
  * A photograph in a gallery band. `layout` decides how wide the tile sits in
  * the three column grid: `tall` takes one column, `wide` two, and two
- * consecutive `half` shots share one column as a stack.
+ * consecutive `half` shots share one column as a stack. Video embeds use the
+ * same field, plus `full` for a 16:9 row.
  *
  * `caption` is shown in the viewer only, and may contain inline HTML so a
  * photo credit can link out.
  */
+const layout = z.enum(['tall', 'wide', 'half', 'full']);
+
 const shot = ({ image }: SchemaContext) =>
   z.object({
     src: image(),
@@ -18,6 +21,15 @@ const shot = ({ image }: SchemaContext) =>
     caption: z.string().optional(),
     layout: z.enum(['tall', 'wide', 'half']).default('tall')
   });
+
+/** A YouTube or Vimeo embed that sits in the gallery grid like a photograph. */
+const film = z.object({
+  provider: z.enum(['youtube', 'vimeo']),
+  id: z.string(),
+  title: z.string(),
+  /** `full` is the whole row at 16:9; the others match photograph tiles. */
+  layout: layout.default('full')
+});
 
 const projects = defineCollection({
   loader: glob({ pattern: '**/*.mdx', base: './src/content/projects' }),
@@ -57,15 +69,7 @@ const projects = defineCollection({
 
       lead: shot(ctx),
       facts: z.array(z.object({ label: z.string(), value: z.string() })).optional(),
-      gallery: z.array(shot(ctx)).default([]),
-
-      video: z
-        .object({
-          provider: z.enum(['youtube', 'vimeo']),
-          id: z.string(),
-          title: z.string()
-        })
-        .optional(),
+      gallery: z.array(z.union([shot(ctx), film])).default([]),
 
       /** Footnotes after the photographs. Inline HTML allowed for links. */
       notes: z.array(z.string()).default([])
