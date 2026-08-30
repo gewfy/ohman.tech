@@ -6,8 +6,7 @@ export type ShotVariant = 'tall' | 'wide' | 'half' | 'lead';
 
 export interface ShotData {
   src: ImageMetadata;
-  alt: string;
-  /** Shown in the viewer only; may contain a link for a photo credit */
+  /** Viewer text; markup allowed for a photo credit. Also used as alt. */
   caption?: string;
   layout?: Exclude<ShotVariant, 'lead'>;
 }
@@ -17,7 +16,9 @@ interface Props extends ShotData {
   eager?: boolean;
 }
 
-const { src, alt, caption = '', variant = 'tall', eager = false } = Astro.props;
+const { src, caption = '', variant = 'tall', eager = false } = Astro.props;
+
+const alt = caption.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
 
 /* A wide tile spans two of the three columns, everything else spans one */
 const sizes =

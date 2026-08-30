@@ -54,10 +54,9 @@ slug. Frontmatter carries the structure, the MDX body carries the prose.
 - `gallery` is the ordered list of photographs and optional video embeds (see below).
 - `notes` are the footnotes under the photographs, again allowing inline HTML.
 
-Captions appear in the full-screen viewer only, never under a tile. They may
-contain a link, which is how photo credits are handled. Every caption is the
-description the photograph carried on the old Tilda site, verbatim; where the
-old site had none, the image goes without one and `alt` holds a plain label.
+Captions are the photograph text: they show in the full-screen viewer and
+become the image `alt` (tags stripped). They may contain a link, which is how
+photo credits are handled. Omit `caption` when there is nothing to say.
 
 ### Gallery bands
 

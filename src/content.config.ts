@@ -9,7 +9,7 @@ import type { SchemaContext } from 'astro:content';
  * consecutive `half` shots share one column as a stack. Video embeds use the
  * same field, plus `full` for a 16:9 row.
  *
- * `caption` is shown in the viewer only, and may contain inline HTML so a
+ * `caption` is the image text: plain in `alt`, markup in the viewer so a
  * photo credit can link out.
  */
 const layout = z.enum(['tall', 'wide', 'half', 'full']);
@@ -17,7 +17,6 @@ const layout = z.enum(['tall', 'wide', 'half', 'full']);
 const shot = ({ image }: SchemaContext) =>
   z.object({
     src: image(),
-    alt: z.string(),
     caption: z.string().optional(),
     layout: z.enum(['tall', 'wide', 'half']).default('tall')
   });
