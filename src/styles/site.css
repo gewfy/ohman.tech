@@ -10,6 +10,7 @@
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 
 body {
+  position: relative;
   margin: 0;
   background: var(--bg);
   color: var(--ink);
@@ -32,9 +33,14 @@ button {
 }
 ::selection { background: var(--accent); color: #fff; }
 
-/* The routed board sits between the background and the content */
+/* The board is painted once onto a sheet-sized canvas in the document, so
+   the browser scrolls it. A viewport-fixed bitmap was redrawn from scrollY
+   every frame and went blank on iOS when the URL bar resized the viewport. */
 .pcb {
-  position: fixed; inset: 0; z-index: 0;
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  z-index: 0;
   pointer-events: none;
   transition: opacity var(--t-slow) linear;
 }

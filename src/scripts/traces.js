@@ -1,10 +1,11 @@
 /* ═══════════════════════════════════════════════════════════════
    PCB TRACES
 
-   Nets enter from off the left of the viewport and fan out across the
+   Nets enter from off the left of the sheet and fan out across the
    page in 45/90-degree runs, terminating in pads. There is no spine
    bus. The head follows the reading position: copper grows in on the
-   way down and cuts out on the way up.
+   way down and cuts out on the way up. The canvas is the sheet itself
+   and scrolls with the document; JS only paints while copper is moving.
    ═══════════════════════════════════════════════════════════════ */
 
 (() => {
@@ -29,7 +30,8 @@
   /* ── State ── */
   let dpr = 1,
     vw = 0,
-    vh = 0;
+    vh = 0,
+    docH = 0;
   let traces = [];
   let board = { y0: 0, y1: 0 };
   let occ = null,
@@ -672,36 +674,79 @@
 
   /* ─────────────────── Layout ─────────────────── */
 
+  /* Reading window in document coordinates. visualViewport tracks the iOS
+     URL bar without us treating that as a layout resize. */
+  function viewRect() {
+    const vv = window.visualViewport;
+    return {
+      top: vv ? vv.pageTop : scrollY,
+      h: vv ? vv.height : innerHeight,
+    };
+  }
+
+  /* iOS blanks canvases past ~16M pixels or 8192px on a side; drop
+     backing scale before that. The CSS box still covers the sheet. */
+  function backingScale(cssW, cssH) {
+    const cap = 16 * 1024 * 1024;
+    const maxDim = 8192;
+    let s = Math.min(devicePixelRatio || 1, 2);
+    const area = Math.max(1, cssW * cssH);
+    if (area * s * s > cap) s = Math.sqrt(cap / area);
+    if (cssH * s > maxDim) s = maxDim / cssH;
+    if (cssW * s > maxDim) s = maxDim / cssW;
+    return Math.max(0.25, s);
+  }
+
+  function sheetSize() {
+    return {
+      w: document.documentElement.clientWidth,
+      h: Math.max(
+        document.documentElement.scrollHeight,
+        document.body.scrollHeight,
+      ),
+    };
+  }
+
   function measure() {
-    dpr = Math.min(devicePixelRatio || 1, 2);
-    vw = innerWidth;
-    vh = innerHeight;
-    canvas.width = Math.floor(vw * dpr);
-    canvas.height = Math.floor(vh * dpr);
-    canvas.style.width = vw + "px";
-    canvas.style.height = vh + "px";
+    const next = sheetSize();
+    const widthChanged = next.w !== vw;
+    const prevY1 = board.y1;
+    const hadTraces = traces.length > 0;
+    const v = viewRect();
+
+    vw = next.w;
+    docH = Math.max(1, next.h);
+    vh = v.h;
+    dpr = backingScale(vw, docH);
+
+    const bw = Math.max(1, Math.floor(vw * dpr));
+    const bh = Math.max(1, Math.floor(docH * dpr));
+    /* Reassigning width/height clears the bitmap — only do it when needed. */
+    if (canvas.width !== bw || canvas.height !== bh) {
+      canvas.width = bw;
+      canvas.height = bh;
+      canvas.style.width = vw + "px";
+      canvas.style.height = docH + "px";
+    }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     board.y0 = 0;
     /* Copper runs the whole sheet — stopping at a landmark left the contact
        block and footer bare. */
-    board.y1 = Math.max(
-      vh,
-      Math.round(document.documentElement.scrollHeight) - 24,
-    );
-
-    const docH = Math.max(
-      document.documentElement.scrollHeight,
-      board.y1 + 200,
-    );
+    board.y1 = Math.max(Math.round(vh), Math.round(docH) - 24);
     cols = Math.ceil((vw + EDGE) / CELL);
     rows = Math.ceil(docH / CELL);
 
-    traces = [];
-    routeBoard(board.y0);
-    tip = Math.min(Math.max(scrollY + vh * 0.62, board.y0), board.y1);
-    lastTip = tip;
-    retracted = 0;
+    if (!hadTraces || widthChanged) {
+      traces = [];
+      routeBoard(board.y0);
+      tip = Math.min(Math.max(v.top + v.h * 0.62, board.y0), board.y1);
+      lastTip = tip;
+      retracted = 0;
+    } else if (board.y1 > prevY1 + 8) {
+      rebuildOccupancy(traces);
+      routeBoard(prevY1);
+    }
   }
 
   /* ─────────────────── Drawing ─────────────────── */
@@ -722,48 +767,33 @@
     ctx.fill();
   }
 
-  function pathToLength(pts, upto, oy) {
+  function pathToLength(pts, upto) {
     let left = upto;
     ctx.beginPath();
-    ctx.moveTo(pts[0][0], pts[0][1] - oy);
+    ctx.moveTo(pts[0][0], pts[0][1]);
     for (let i = 1; i < pts.length && left > 0; i++) {
       const [ax, ay] = pts[i - 1];
       const [bx, by] = pts[i];
       const seg = Math.hypot(bx - ax, by - ay);
       if (seg <= left) {
-        ctx.lineTo(bx, by - oy);
+        ctx.lineTo(bx, by);
         left -= seg;
       } else {
         const t = left / seg;
-        ctx.lineTo(ax + (bx - ax) * t, ay + (by - ay) * t - oy);
+        ctx.lineTo(ax + (bx - ax) * t, ay + (by - ay) * t);
         return;
       }
     }
   }
 
-  function traceVisible(t, oy) {
-    for (const p of t.pts) {
-      if (
-        p[0] > -EDGE &&
-        p[0] < vw + 40 &&
-        p[1] - oy > -80 &&
-        p[1] - oy < vh + 80
-      )
-        return true;
-    }
-    return false;
-  }
-
   function draw() {
-    const oy = scrollY;
-    ctx.clearRect(0, 0, vw, vh);
+    ctx.clearRect(0, 0, vw, docH);
     for (const t of traces) {
       if (t.progress <= 0.001) continue;
-      if (!traceVisible(t, oy)) continue;
-      line(() => pathToLength(t.pts, t.len * t.progress, oy), FAN_W, COPPER);
+      line(() => pathToLength(t.pts, t.len * t.progress), FAN_W, COPPER);
       if (t.progress >= 1) {
         const end = t.pts[t.pts.length - 1];
-        pad(end[0], end[1] - oy, 3.4, PAD);
+        pad(end[0], end[1], 3.4, PAD);
       }
     }
   }
@@ -771,19 +801,23 @@
   /* ─────────────────── Simulation ─────────────────── */
 
   function step(dt) {
-    const target = Math.min(Math.max(scrollY + vh * 0.62, board.y0), board.y1);
+    const v = viewRect();
+    vh = v.h;
+    const target = Math.min(Math.max(v.top + v.h * 0.62, board.y0), board.y1);
     tip = target < tip ? target : tip + (target - tip) * Math.min(1, dt / 140);
 
+    let dirty = false;
+    let busy = false;
     if (tip < lastTip - 0.5) {
       retracted += lastTip - tip;
     } else if (tip > lastTip + 0.5 && retracted > RETRACT_TRIGGER) {
-      routeBoard(scrollY + vh);
+      routeBoard(v.top + v.h);
       retracted = 0;
+      dirty = true;
     }
     lastTip = tip;
 
-    const bottom = scrollY + vh;
-    let busy = Math.abs(target - tip) > 0.5;
+    const bottom = v.top + v.h;
     for (const t of traces) {
       const rate = t.rate || 0.1;
       const len = Math.max(1, t.len);
@@ -799,23 +833,23 @@
           busy = true;
         } else if (t.progress < 1) {
           t.progress = Math.min(1, t.progress + (dt * rate) / len);
-          busy = true;
+          dirty = true;
         }
       } else if (!alive && (t.progress > 0 || (t.wait || 0) > 0)) {
         t.progress = 0;
         t.wait = 0;
-        busy = true;
+        dirty = true;
       }
     }
-    return busy;
+    return { busy: busy || dirty, dirty };
   }
 
   function frame(t) {
     if (!running) return;
     const dt = Math.min(48, t - lastT || 16);
     lastT = t;
-    const busy = step(dt);
-    draw();
+    const { busy, dirty } = step(dt);
+    if (dirty) draw();
     if (busy) requestAnimationFrame(frame);
     else running = false;
   }
@@ -831,35 +865,15 @@
 
   let scrollRAF = 0;
   function onScroll() {
+    if (reduced) return;
     if (scrollRAF) return;
     scrollRAF = requestAnimationFrame(() => {
       scrollRAF = 0;
-      if (reduced) {
-        draw();
-        return;
-      }
       wake();
     });
   }
 
-  let resizeTimer = 0;
-  function onResize() {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => {
-      measure();
-      if (reduced) {
-        traces.forEach((t) => {
-          t.progress = 1;
-        });
-        draw();
-        return;
-      }
-      wake();
-    }, 140);
-  }
-
-  function init() {
-    measure();
+  function paint() {
     if (reduced) {
       traces.forEach((t) => {
         t.progress = 1;
@@ -867,20 +881,38 @@
       draw();
       return;
     }
+    draw();
     wake();
+  }
+
+  let resizeTimer = 0;
+  function onResize() {
+    const next = sheetSize();
+    /* URL bar show/hide changes innerHeight, not the sheet. Leave the bitmap. */
+    if (next.w === vw && Math.abs(next.h - docH) < 8) return;
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      measure();
+      paint();
+    }, 140);
+  }
+
+  function init() {
+    measure();
+    paint();
   }
 
   addEventListener("scroll", onScroll, { passive: true });
   addEventListener("resize", onResize);
+  visualViewport?.addEventListener("scroll", onScroll, { passive: true });
+  visualViewport?.addEventListener("resize", onScroll, { passive: true });
+  if (typeof ResizeObserver !== "undefined") {
+    new ResizeObserver(onResize).observe(document.documentElement);
+  }
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(() => {
       measure();
-      if (reduced) {
-        traces.forEach((t) => {
-          t.progress = 1;
-        });
-        draw();
-      } else wake();
+      paint();
     });
   }
 
@@ -924,7 +956,7 @@
       canvas.style.opacity = on ? "" : "0";
       if (on) {
         measure();
-        wake();
+        paint();
       }
     },
     replay() {
@@ -932,6 +964,7 @@
         t.progress = 0;
         t.wait = 0;
       });
+      draw();
       wake();
     },
   };
