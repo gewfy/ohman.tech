@@ -181,7 +181,7 @@ main { position: relative; z-index: 1; }
 .hero__title .line--accent { color: var(--accent); }
 
 .hero__lede {
-  max-width: 34ch;
+  max-width: 42ch;
   font-size: clamp(1rem, .5vw + .9rem, 1.2rem);
   color: var(--ink-2);
   line-height: 1.6;
