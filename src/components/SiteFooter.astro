@@ -5,12 +5,28 @@ const year = new Date().getFullYear();
 ---
 
 <footer class="footer">
-  <img
-    class="footer__lockup"
-    src="/logo/lockup-white-s.svg"
-    alt={site.name}
-    width="400"
-    height="400"
-  />
-  <p class="label">{site.name} — {site.city} {year}</p>
+  <section class="practice" aria-label="Practice">
+    <p class="practice__lede">{site.practice.text}</p>
+    <dl class="facts practice__facts">
+      {
+        site.practice.groups.map((group) => (
+          <div>
+            <dt>{group.label}</dt>
+            <dd>{group.value}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </section>
+
+  <div class="footer__mark">
+    <img
+      class="footer__lockup"
+      src="/logo/lockup-white-s.svg"
+      alt={site.name}
+      width="400"
+      height="400"
+    />
+    <p class="label">{site.name} — {site.city} {year}</p>
+  </div>
 </footer>
