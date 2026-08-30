@@ -19,9 +19,9 @@ const manifest = JSON.parse(
 const force = process.argv.includes('--force');
 
 /**
- * Tilda serves derivatives from optim/thb hosts with the transform baked into
- * the path. The untransformed original lives on static.tildacdn.net under the
- * same asset id, so strip the transforms and the format suffix.
+ * Guard: if a Tilda optim/thb URL with resize/cover/format ops slips into the
+ * manifest, pull the untransformed original from static.tildacdn.net instead.
+ * Astro already emits WebP (and the responsive set) at build time.
  */
 function original(url) {
   const id = url.match(/\/(tild[0-9a-f-]+)\//i)?.[1];
