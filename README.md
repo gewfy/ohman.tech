@@ -79,7 +79,7 @@ every file.
 A video item is a YouTube or Vimeo embed in the same list, with `provider`,
 `id`, and `title` instead of `src`. Default layout is `full` (the whole row at
 16:9, so the player chrome is not cropped). `wide`, `tall`, and `half` put it
-on the same tiles as photographs; the 16:9 player is cropped to the tile, like a still.
+on the same tiles as photographs; the iframe fills that tile.
 
 ## Deploying
 
