@@ -65,7 +65,8 @@
         provider: el.dataset.provider,
         id: el.dataset.id,
         title: el.dataset.title || '',
-        caption: el.dataset.title || ''
+        caption: el.dataset.title || '',
+        ar: el.dataset.ar || 'tall'
       };
     }
 
@@ -108,6 +109,7 @@
     filmFrame.removeAttribute('src');
     filmFrame.title = '';
     filmBox.hidden = true;
+    delete filmBox.dataset.ar;
     viewer.classList.remove('is-film');
   }
 
@@ -173,6 +175,7 @@
       full.hidden = true;
       viewer.classList.add('is-film');
       filmBox.hidden = false;
+      filmBox.dataset.ar = item.ar;
       filmFrame.title = item.title;
       filmFrame.src = filmSrc(item, true);
       capEl.innerHTML = '';
