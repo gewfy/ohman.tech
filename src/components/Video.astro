@@ -18,13 +18,16 @@ const tile = variant ?? layout;
 
 const src =
   provider === 'youtube'
-    ? `https://www.youtube-nocookie.com/embed/${id}?rel=0&modestbranding=1`
-    : `https://player.vimeo.com/video/${id}?title=0&byline=0&portrait=0&dnt=1`;
+    ? `https://www.youtube-nocookie.com/embed/${id}?rel=0&modestbranding=1&playsinline=1&enablejsapi=1`
+    : `https://player.vimeo.com/video/${id}?title=0&byline=0&portrait=0&dnt=1&playsinline=1`;
 ---
 
 <div
   class="film-tile"
   data-ar={tile === 'tall' || tile === 'half' ? undefined : tile}
+  data-provider={provider}
+  data-id={id}
+  data-title={title}
 >
   <div class="film-tile__frame">
     <iframe

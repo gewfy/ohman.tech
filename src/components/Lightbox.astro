@@ -1,7 +1,7 @@
 ---
 /**
- * Full-screen viewer shared by every `.shot` on the page: the gallery tiles
- * and the lead photograph alike. Markup only — gallery.js does the work.
+ * Full-screen viewer shared by every gallery tile and the lead photograph.
+ * Markup only — gallery.js does the work.
  */
 ---
 
@@ -10,11 +10,18 @@
   id="viewer"
   role="dialog"
   aria-modal="true"
-  aria-label="Image viewer"
+  aria-label="Gallery viewer"
   hidden
 >
   <div class="viewer__stage">
     <img class="viewer__img" alt="" />
+    <div class="viewer__film" hidden>
+      <iframe
+        title=""
+        allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
+        allowfullscreen
+      ></iframe>
+    </div>
   </div>
 
   <img
@@ -32,10 +39,10 @@
   <button class="viewer__btn viewer__close" type="button" aria-label="Close">
     ✕
   </button>
-  <button class="viewer__btn viewer__prev" type="button" aria-label="Previous image">
+  <button class="viewer__btn viewer__prev" type="button" aria-label="Previous">
     ←
   </button>
-  <button class="viewer__btn viewer__next" type="button" aria-label="Next image">
+  <button class="viewer__btn viewer__next" type="button" aria-label="Next">
     →
   </button>
 </div>

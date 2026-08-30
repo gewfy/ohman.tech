@@ -1,9 +1,10 @@
 /* ═══════════════════════════════════════════════════════════════
    GALLERY VIEWER
 
-   Full-screen image viewer for the project galleries. Opens out of the
+   Full-screen viewer for the project galleries. Opens out of the
    thumbnail it was launched from, browses with keys, wheel-free swipe
-   and buttons, and zooms to pan with the pointer.
+   and buttons, and zooms photographs to pan with the pointer.
+   Films play in the grid; they still appear in the viewer sequence.
    ═══════════════════════════════════════════════════════════════ */
 
 (() => {
@@ -12,6 +13,8 @@
 
   const stage = viewer.querySelector('.viewer__stage');
   const full = viewer.querySelector('.viewer__img');
+  const filmBox = viewer.querySelector('.viewer__film');
+  const filmFrame = filmBox.querySelector('iframe');
   const capEl = viewer.querySelector('.viewer__caption');
   const countEl = viewer.querySelector('.viewer__count');
   const btnClose = viewer.querySelector('.viewer__close');
@@ -21,10 +24,9 @@
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const SERVO = 'cubic-bezier(.22, 1.16, .36, 1)';
 
-  /* Every shot on the page in document order, so the lead photograph is
-     part of the same sequence as the gallery tiles. */
-  const shots = Array.from(document.querySelectorAll('.shot'));
-  if (!shots.length) return;
+  /* Lead photograph, gallery stills, and video tiles in document order. */
+  const tiles = Array.from(document.querySelectorAll('.shot, .film-tile'));
+  if (!tiles.length) return;
 
   /* Captions carry markup so a photo credit can link out; the button label
      needs the plain text of it. */
@@ -34,17 +36,50 @@
     return el.textContent.trim();
   };
 
-  const items = shots.map((btn) => {
-    const thumb = btn.querySelector('img');
-    const caption = btn.dataset.caption || '';
-    if (!btn.hasAttribute('aria-label')) {
+  const filmSrc = (item, autoplay) => {
+    if (item.provider === 'youtube') {
+      const q = new URLSearchParams({
+        rel: '0',
+        modestbranding: '1',
+        playsinline: '1',
+        autoplay: autoplay ? '1' : '0'
+      });
+      return `https://www.youtube-nocookie.com/embed/${item.id}?${q}`;
+    }
+    const q = new URLSearchParams({
+      title: '0',
+      byline: '0',
+      portrait: '0',
+      dnt: '1',
+      autoplay: autoplay ? '1' : '0'
+    });
+    return `https://player.vimeo.com/video/${item.id}?${q}`;
+  };
+
+  const items = tiles.map((el) => {
+    if (el.classList.contains('film-tile')) {
+      return {
+        kind: 'film',
+        el,
+        thumb: el,
+        provider: el.dataset.provider,
+        id: el.dataset.id,
+        title: el.dataset.title || '',
+        caption: el.dataset.title || ''
+      };
+    }
+
+    const thumb = el.querySelector('img');
+    const caption = el.dataset.caption || '';
+    if (!el.hasAttribute('aria-label')) {
       const label = plain(caption) || thumb.alt;
-      btn.setAttribute('aria-label', `View full screen: ${label}`);
+      el.setAttribute('aria-label', `View full screen: ${label}`);
     }
     return {
-      btn,
+      kind: 'shot',
+      el,
       thumb,
-      src: btn.dataset.full || thumb.currentSrc || thumb.src,
+      src: el.dataset.full || thumb.currentSrc || thumb.src,
       alt: thumb.alt || '',
       caption
     };
@@ -69,6 +104,30 @@
     document.body.style.paddingRight = '';
   }
 
+  function stopFilm() {
+    filmFrame.removeAttribute('src');
+    filmFrame.title = '';
+    filmBox.hidden = true;
+    viewer.classList.remove('is-film');
+  }
+
+  /* Lightbox sits over the page, so a tile still playing would double up. */
+  function pauseGalleryFilms() {
+    document.querySelectorAll('.film-tile iframe').forEach((frame) => {
+      const win = frame.contentWindow;
+      if (!win) return;
+      const vimeo = (frame.getAttribute('src') || '').includes('vimeo');
+      win.postMessage(
+        JSON.stringify(
+          vimeo
+            ? { method: 'pause' }
+            : { event: 'command', func: 'pauseVideo', args: [] }
+        ),
+        '*'
+      );
+    });
+  }
+
   /* Grid tiles are cropped, so match the cover scale rather than the box:
      the picture then starts at the size it appears in the tile and grows
      from the same centre. The fade hides what the crop was hiding. */
@@ -82,9 +141,16 @@
     return `translate(${dx}px, ${dy}px) scale(${scale})`;
   }
 
-  function riseFrom(thumb) {
+  function riseFrom(item) {
     if (reduced) return;
-    const start = tileTransform(thumb);
+    if (item.kind === 'film') {
+      filmBox.animate([{ opacity: 0 }, { opacity: 1 }], {
+        duration: 260,
+        easing: 'ease-out'
+      });
+      return;
+    }
+    const start = tileTransform(item.thumb);
     if (!start) return;
     full.animate(
       [
@@ -100,10 +166,34 @@
     const item = items[index];
 
     setZoom(false);
+    countEl.textContent = `${pad(index + 1)} / ${pad(items.length)}`;
+
+    if (item.kind === 'film') {
+      full.removeAttribute('src');
+      full.hidden = true;
+      viewer.classList.add('is-film');
+      filmBox.hidden = false;
+      filmFrame.title = item.title;
+      filmFrame.src = filmSrc(item, true);
+      capEl.innerHTML = '';
+      if (animate === 'rise') riseFrom(item);
+      else if (animate && !reduced) {
+        filmBox.animate(
+          [
+            { opacity: 0, transform: `translateX(${animate === 'next' ? 24 : -24}px)` },
+            { opacity: 1, transform: 'none' }
+          ],
+          { duration: 260, easing: 'ease-out' }
+        );
+      }
+      return;
+    }
+
+    stopFilm();
+    full.hidden = false;
     full.src = item.src;
     full.alt = item.alt;
     capEl.innerHTML = item.caption;
-    countEl.textContent = `${pad(index + 1)} / ${pad(items.length)}`;
 
     try {
       await full.decode();
@@ -111,7 +201,7 @@
       /* a decode error still leaves the <img> to report onerror itself */
     }
 
-    if (animate === 'rise') riseFrom(item.thumb);
+    if (animate === 'rise') riseFrom(item);
     else if (animate && !reduced) {
       full.animate(
         [
@@ -128,12 +218,14 @@
 
   function preload(i) {
     const item = items[(i + items.length) % items.length];
+    if (item.kind === 'film') return;
     const img = new Image();
     img.src = item.src;
   }
 
   function open(i) {
     opener = document.activeElement;
+    pauseGalleryFilms();
     viewer.hidden = false;
     lockScroll();
     document.getElementById('top').setAttribute('aria-hidden', 'true');
@@ -148,10 +240,12 @@
   }
 
   function close() {
-    const thumb = items[index] && items[index].thumb;
+    const item = items[index];
+    const thumb = item && item.kind === 'shot' && item.thumb;
     const done = () => {
       viewer.hidden = true;
       full.removeAttribute('src');
+      stopFilm();
       unlockScroll();
       document.getElementById('top').removeAttribute('aria-hidden');
       if (opener) opener.focus({ preventScroll: true });
@@ -224,8 +318,9 @@
 
   /* ─────────────────── Wiring ─────────────────── */
 
-  shots.forEach((btn, i) => {
-    btn.addEventListener('click', () => open(i));
+  items.forEach((item, i) => {
+    if (item.kind === 'film') return;
+    item.el.addEventListener('click', () => open(i));
   });
 
   btnClose.addEventListener('click', close);
@@ -236,10 +331,10 @@
     ev.stopPropagation();
     setZoom(!zoomed, ev);
   });
-  /* Anything but the photograph itself dismisses; the image handler above
-     stops its own clicks from reaching here. */
+  /* Anything but the photograph or the player dismisses; those handlers
+     stop their own clicks from reaching here. */
   stage.addEventListener('click', (ev) => {
-    if (ev.target !== full) close();
+    if (ev.target !== full && !filmBox.contains(ev.target)) close();
   });
   stage.addEventListener('pointermove', (ev) => {
     if (zoomed && ev.pointerType === 'mouse') panTo(ev);
@@ -253,7 +348,11 @@
         zoomed ? setZoom(false) : close();
         break;
       case 'ArrowRight':
+        ev.preventDefault();
+        show(index + 1, 'next');
+        break;
       case ' ':
+        if (viewer.classList.contains('is-film')) return;
         ev.preventDefault();
         show(index + 1, 'next');
         break;
@@ -278,7 +377,7 @@
   /* Gathered per keypress: a caption credit adds a link to the tab order */
   function trap(ev) {
     const stops = Array.from(
-      viewer.querySelectorAll('a[href], button')
+      viewer.querySelectorAll('a[href], button, .viewer__film iframe')
     ).filter((el) => el.offsetParent);
     if (!stops.length) return;
 
@@ -293,10 +392,12 @@
     }
   }
 
-  /* Swipe: sideways to browse, down to dismiss. */
+  /* Swipe: sideways to browse, down to dismiss. Skip while a film is
+     showing so the player can use the gesture. */
   let start = null;
   stage.addEventListener('pointerdown', (ev) => {
     if (ev.pointerType === 'mouse') return;
+    if (viewer.classList.contains('is-film')) return;
     start = { x: ev.clientX, y: ev.clientY };
   });
   stage.addEventListener('pointerup', (ev) => {

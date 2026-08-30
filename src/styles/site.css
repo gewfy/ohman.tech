@@ -638,6 +638,17 @@ main { position: relative; z-index: 1; }
   width: 100%;
   height: 100%;
   border: 0;
+  pointer-events: none;
+}
+.film-tile__hit {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  cursor: zoom-in;
+}
+.film-tile__hit:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 4px;
 }
 
 /* ─────────────────────────── Image viewer ─────────────────────────── */
@@ -666,7 +677,27 @@ main { position: relative; z-index: 1; }
   transition: transform var(--t-med) var(--servo-soft);
   will-change: transform;
 }
+.viewer__img[hidden] { display: none; }
 .viewer.is-zoomed .viewer__img { cursor: zoom-out; transition: transform .12s linear; }
+
+.viewer__film {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.viewer__film[hidden] { display: none; }
+/* Same contain-in-viewport box a 16:9 photograph takes. */
+.viewer__film iframe {
+  pointer-events: auto;
+  display: block;
+  width: min(100vw, calc(100dvh * 16 / 9));
+  height: min(100dvh, calc(100vw * 9 / 16));
+  border: 0;
+  background: #000;
+}
 
 /* Anchored to the sheet, not the photograph, so it holds still between shots */
 .viewer__caption {
