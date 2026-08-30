@@ -12,8 +12,9 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
+const hasCopy = Boolean(entry.body?.trim());
 ---
 
-<ProjectLayout project={entry.data}>
+<ProjectLayout project={entry.data} hasCopy={hasCopy}>
   <Content />
 </ProjectLayout>

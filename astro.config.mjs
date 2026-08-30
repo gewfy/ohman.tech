@@ -8,7 +8,16 @@ export default defineConfig({
   // Slugs stay at the root so the Tilda URLs survive the cutover
   trailingSlash: "never",
   build: { format: "directory" },
-  integrations: [mdx(), sitemap()],
+  integrations: [
+    mdx(),
+    sitemap({
+      // Unlisted project pages (`hidden: true` in the collection).
+      filter: (page) => {
+        const path = new URL(page).pathname.replace(/\/$/, "") || "/";
+        return path !== "/trophies-figurines";
+      },
+    }),
+  ],
   image: {
     responsiveStyles: true,
   },

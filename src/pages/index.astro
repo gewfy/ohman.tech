@@ -5,9 +5,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { site } from '../data/site';
 import hero from '../assets/home/hero.jpg';
 
-const projects = (await getCollection('projects')).sort(
-  (a, b) => a.data.order - b.data.order
-);
+const projects = (await getCollection('projects'))
+  .filter((p) => !p.data.hidden && p.data.teaser)
+  .sort((a, b) => a.data.order - b.data.order);
 ---
 
 <BaseLayout title={`${site.name} — ${site.tagline}`}>
@@ -44,13 +44,16 @@ const projects = (await getCollection('projects')).sort(
   <section class="section work" id="work">
     <ol class="index">
       {
-        projects.map((project, i) => (
+        projects.map((project, i) => {
+          const teaser = project.data.teaser;
+          if (!teaser) return null;
+          return (
           <li class:list={['item', { 'item--flip': i % 2 === 1 }]}>
             <a class="item__link" href={`/${project.id}`}>
               <div class="item__media">
                 <Image
-                  src={project.data.teaser.src}
-                  alt={project.data.teaser.alt}
+                  src={teaser.src}
+                  alt={teaser.alt}
                   widths={[520, 800, 1040]}
                   sizes="(max-width: 900px) 100vw, 45vw"
                   loading="lazy"
@@ -66,9 +69,9 @@ const projects = (await getCollection('projects')).sort(
                     </>
                   ))}
                 </h2>
-                <p class="item__desc">{project.data.teaser.text}</p>
+                <p class="item__desc">{teaser.text}</p>
                 <ul class="tags">
-                  {project.data.teaser.tags.map((tag) => (
+                  {teaser.tags.map((tag) => (
                     <li>{tag}</li>
                   ))}
                 </ul>
@@ -76,7 +79,8 @@ const projects = (await getCollection('projects')).sort(
               </div>
             </a>
           </li>
-        ))
+          );
+        })
       }
     </ol>
   </section>

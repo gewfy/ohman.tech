@@ -9,13 +9,19 @@ import { site } from '../data/site';
 
 interface Props {
   project: CollectionEntry<'projects'>['data'];
+  /** False when the MDX body is empty — skip the copy column. */
+  hasCopy?: boolean;
 }
 
-const { project } = Astro.props;
+const { project, hasCopy = false } = Astro.props;
 const { title, titleLines, description, quote, lead, facts, gallery, video, notes } =
   project;
 
 const hasFacts = (facts?.length ?? 0) > 0;
+const showIntro = hasCopy || hasFacts || Boolean(quote);
+const galleryItems = showIntro
+  ? gallery
+  : [{ ...lead, layout: lead.layout ?? 'wide' }, ...gallery];
 
 const share = await getImage({
   src: lead.src,
@@ -41,42 +47,48 @@ const share = await getImage({
       </div>
     </header>
 
-    <div class:list={['project__body', { 'project__body--no-facts': !hasFacts }]}>
-      <div class="prose">
-        {
-          quote && (
-            <blockquote class="pullquote">
-              <p set:html={quote.text} />
-              <cite>
-                {quote.href ? <a href={quote.href}>{quote.cite}</a> : quote.cite}
-              </cite>
-            </blockquote>
-          )
-        }
-        <slot />
-      </div>
+    {
+      showIntro && (
+        <div class:list={['project__body', { 'project__body--no-facts': !hasFacts }]}>
+          <div class="prose">
+            {
+              quote && (
+                <blockquote class="pullquote">
+                  <p set:html={quote.text} />
+                  <cite>
+                    {quote.href ? <a href={quote.href}>{quote.cite}</a> : quote.cite}
+                  </cite>
+                </blockquote>
+              )
+            }
+            <slot />
+          </div>
 
-      {
-        facts && facts.length > 0 && (
-          <dl class="facts">
-            {facts.map((fact) => (
-              <div>
-                <dt>{fact.label}</dt>
-                <dd set:html={fact.value} />
-              </div>
-            ))}
-          </dl>
-        )
-      }
+          {
+            facts && facts.length > 0 && (
+              <dl class="facts">
+                {facts.map((fact) => (
+                  <div>
+                    <dt>{fact.label}</dt>
+                    <dd set:html={fact.value} />
+                  </div>
+                ))}
+              </dl>
+            )
+          }
 
-      <figure class="project__lead">
-        <Shot {...lead} variant="lead" eager />
-      </figure>
-    </div>
+          <figure class="project__lead">
+            <Shot {...lead} variant="lead" eager />
+          </figure>
+        </div>
+      )
+    }
 
     {video && <Video {...video} />}
 
-    {gallery.length > 0 && <Gallery items={gallery} />}
+    {galleryItems.length > 0 && (
+      <Gallery items={galleryItems} eagerFirst={!showIntro} />
+    )}
 
     {
       notes.length > 0 && (

@@ -27,16 +27,24 @@ const projects = defineCollection({
       title: z.string(),
       /** The same title broken into the lines the hero should set */
       titleLines: z.array(z.string()),
-      /** Sort order on the homepage, newest first */
+      /** Sort order on the homepage, lowest first. Unused when `hidden`. */
       order: z.number(),
       description: z.string(),
 
-      teaser: z.object({
-        src: ctx.image(),
-        alt: z.string(),
-        text: z.string(),
-        tags: z.array(z.string())
-      }),
+      /**
+       * Unlisted: still built at /{slug}, omitted from the homepage and
+       * sitemap. Teaser is unused and may be omitted.
+       */
+      hidden: z.boolean().default(false),
+
+      teaser: z
+        .object({
+          src: ctx.image(),
+          alt: z.string(),
+          text: z.string(),
+          tags: z.array(z.string())
+        })
+        .optional(),
 
       /** Opening pull quote, borrowed from press or a collaborator */
       quote: z
@@ -61,6 +69,15 @@ const projects = defineCollection({
 
       /** Footnotes after the photographs. Inline HTML allowed for links. */
       notes: z.array(z.string()).default([])
+    })
+    .superRefine((data, ctx) => {
+      if (!data.hidden && !data.teaser) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'teaser is required unless the project is hidden',
+          path: ['teaser']
+        });
+      }
     })
 });
 

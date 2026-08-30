@@ -44,6 +44,7 @@ slug. Frontmatter carries the structure, the MDX body carries the prose.
 
 - `titleLines` sets the line breaks in the hero heading and the homepage teaser.
 - `order` sorts the homepage, lowest first.
+- `hidden` keeps the page at `/{slug}` but off the homepage and sitemap. Skip `teaser`.
 - `teaser` is what the homepage shows: image, alt, one paragraph, and tags.
 - `quote` is the optional pull quote above the copy.
 - `lead` is the photograph beside the facts, and the first image in the viewer.

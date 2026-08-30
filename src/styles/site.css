@@ -553,6 +553,10 @@ main { position: relative; z-index: 1; }
 
 /* Three even columns with the tiles grouped by shape, so every row lands
    on one ratio and the block reads as a grid rather than a pile. */
+.hero--project + .gallery {
+  padding-top: clamp(3.5rem, 8vw, 7rem);
+}
+
 .gallery {
   max-width: var(--maxw);
   margin: 0 auto;
