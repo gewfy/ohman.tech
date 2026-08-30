@@ -1,0 +1,83 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../data/site';
+import hero from '../assets/home/hero.jpg';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+---
+
+<BaseLayout title={`${site.name} — ${site.tagline}`}>
+  <section class="hero">
+    <div class="hero__inner">
+      <div class="hero__text">
+        <h1 class="hero__title">
+          <span class="line">I&nbsp;automate</span>
+          <span class="line">and&nbsp;animate</span>
+          <span class="line line--accent">small&nbsp;&amp;&nbsp;large.</span>
+        </h1>
+        <p class="hero__lede">Mechanics, electronics and software engineering.</p>
+        <p class="hero__lede">
+          This is a collection of selected work that has defined my skills and
+          self-confidence over the years.
+        </p>
+      </div>
+
+      <figure class="hero__figure">
+        <div class="frame">
+          <Image
+            src={hero}
+            alt="Jakob Öhman at work"
+            widths={[640, 1040, 1560]}
+            sizes="(max-width: 900px) 100vw, 640px"
+            loading="eager"
+            fetchpriority="high"
+          />
+        </div>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section work" id="work">
+    <ol class="index">
+      {
+        projects.map((project, i) => (
+          <li class:list={['item', { 'item--flip': i % 2 === 1 }]}>
+            <a class="item__link" href={`/${project.id}`}>
+              <div class="item__media">
+                <Image
+                  src={project.data.teaser.src}
+                  alt={project.data.teaser.alt}
+                  widths={[520, 800, 1040]}
+                  sizes="(max-width: 900px) 100vw, 45vw"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <div class="item__meta">
+                <h2 class="item__title">
+                  {project.data.titleLines.map((line, n) => (
+                    <>
+                      {n > 0 && <br />}
+                      {line}
+                    </>
+                  ))}
+                </h2>
+                <p class="item__desc">{project.data.teaser.text}</p>
+                <ul class="tags">
+                  {project.data.teaser.tags.map((tag) => (
+                    <li>{tag}</li>
+                  ))}
+                </ul>
+                <span class="item__go">See project</span>
+              </div>
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+</BaseLayout>

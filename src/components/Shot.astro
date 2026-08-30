@@ -1,0 +1,59 @@
+---
+import { Image, getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+export type ShotVariant = 'tall' | 'wide' | 'half' | 'lead';
+
+export interface ShotData {
+  src: ImageMetadata;
+  alt: string;
+  /** Shown in the viewer only; may contain a link for a photo credit */
+  caption?: string;
+  layout?: Exclude<ShotVariant, 'lead'>;
+}
+
+interface Props extends ShotData {
+  variant?: ShotVariant;
+  eager?: boolean;
+}
+
+const { src, alt, caption = '', variant = 'tall', eager = false } = Astro.props;
+
+/* A wide tile spans two of the three columns, everything else spans one */
+const sizes =
+  variant === 'wide'
+    ? '(max-width: 1100px) 100vw, 1040px'
+    : '(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 520px';
+
+const ladder =
+  variant === 'wide' ? [640, 1040, 1560, 2080] : [400, 520, 800, 1040];
+const widths = [...new Set(ladder.map((w) => Math.min(w, src.width)))].sort(
+  (a, b) => a - b
+);
+
+/* What the viewer loads. Astro never upscales, so cap at the source width. */
+const full = await getImage({
+  src,
+  width: Math.min(2200, src.width),
+  format: 'webp',
+  quality: 82
+});
+---
+
+<button
+  class="shot"
+  type="button"
+  data-ar={variant === 'wide' ? 'wide' : undefined}
+  data-full={full.src}
+  data-caption={caption || undefined}
+>
+  <Image
+    src={src}
+    alt={alt}
+    widths={widths}
+    sizes={sizes}
+    loading={eager ? 'eager' : 'lazy'}
+    decoding={eager ? 'sync' : 'async'}
+    fetchpriority={eager ? 'high' : undefined}
+  />
+</button>

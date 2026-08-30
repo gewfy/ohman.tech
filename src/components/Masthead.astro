@@ -1,0 +1,23 @@
+---
+/**
+ * Compact bar that takes over once the in-page lockup has scrolled away.
+ * Hidden from assistive tech until the script switches it on.
+ */
+---
+
+<header class="masthead" aria-hidden="true">
+  <a class="masthead__brand" href="/" tabindex="-1">
+    <img
+      class="masthead__mark"
+      src="/logo/lockup-white-s.svg"
+      alt=""
+      width="473"
+      height="473"
+    />
+    <span class="masthead__word">Ohman Mechatronics</span>
+  </a>
+</header>
+
+<script>
+  import '../scripts/masthead.js';
+</script>

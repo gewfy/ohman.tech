@@ -1,0 +1,27 @@
+{
+  "name": "ohman.tech",
+  "version": "1.0.0",
+  "description": "Portfolio site for Ohman Mechatronics",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "assets": "node scripts/fetch-assets.mjs"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@astrojs/mdx": "^7.0.8",
+    "@astrojs/sitemap": "^3.7.3",
+    "@fontsource-variable/archivo": "^5.3.0",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "astro": "^7.2.7",
+    "sharp": "^0.35.4"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "typescript": "^6.0.3"
+  }
+}

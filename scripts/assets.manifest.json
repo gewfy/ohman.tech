@@ -1,0 +1,73 @@
+{
+  "note": "Media harvested from the Tilda site before the cutover. URLs are the CDN references as they appeared on the live pages; fetch-assets.mjs rewrites them to the untransformed originals on static.tildacdn.net.",
+  "projects": {
+    "tiunda-school": {
+      "lead": {
+        "file": "pillars.jpg",
+        "url": "https://optim.tildacdn.net/tild3733-3263-4466-a238-316131613033/-/resize/800x600/-/format/webp/Nya-Tiundaskolan-C-F.jpg.webp"
+      },
+      "gallery": [
+        { "file": "clay-press-01.jpg", "url": "https://optim.tildacdn.net/tild6262-3035-4439-a163-366535623838/-/resize/400x600/-/format/webp/IMG_2396.jpg.webp" },
+        { "file": "clay-press-02.jpg", "url": "https://optim.tildacdn.net/tild3262-3131-4336-b036-373465623633/-/resize/400x600/-/format/webp/IMG_0321.jpeg.webp" },
+        { "file": "clay-press-03.jpg", "url": "https://optim.tildacdn.net/tild3963-6439-4431-a663-666333343231/-/resize/800x600/-/format/webp/IMG_0265.jpeg.webp" },
+        { "file": "clay-press-04.jpg", "url": "https://optim.tildacdn.net/tild3965-6361-4131-b766-303434386639/-/resize/800x600/-/format/webp/IMG_0264_1.jpeg.webp" },
+        { "file": "clay-press-05.jpg", "url": "https://optim.tildacdn.net/tild6138-3132-4663-b735-343463353030/-/resize/400x600/-/format/webp/IMG_0389.jpeg.webp" },
+        { "file": "clay-press-06.jpg", "url": "https://optim.tildacdn.net/tild3463-3434-4063-b239-393137623632/-/resize/400x600/-/format/webp/_IMG_7141.jpeg.webp" },
+        { "file": "clay-press-07.jpg", "url": "https://optim.tildacdn.net/tild6434-3539-4435-b332-336536646639/-/resize/800x600/-/format/webp/IMG_0313.jpeg.webp" },
+        { "file": "clay-press-08.jpg", "url": "https://optim.tildacdn.net/tild6566-3030-4531-b731-313835366632/-/resize/800x600/-/format/webp/20583141_29151801799.jpg.webp" },
+        { "file": "clay-press-09.jpg", "url": "https://optim.tildacdn.net/tild3434-3339-4333-b630-383665366139/-/resize/400x600/-/format/webp/20582395_14814195576.jpg.webp" },
+        { "file": "clay-press-10.jpg", "url": "https://optim.tildacdn.net/tild3736-3065-4562-b666-616330383462/-/resize/400x600/-/format/webp/IMG_0057.jpeg.webp" },
+        { "file": "clay-press-11.jpg", "url": "https://optim.tildacdn.net/tild3164-3662-4162-b134-626364653632/-/resize/800x600/-/format/webp/IMG_0287.jpeg.webp" },
+        { "file": "clay-press-12.jpg", "url": "https://optim.tildacdn.net/tild3833-6663-4638-a363-336632663063/-/resize/800x600/-/format/webp/IMG_0155.jpeg.webp" },
+        { "file": "clay-press-13.jpg", "url": "https://optim.tildacdn.net/tild3063-6339-4431-b165-613330313163/-/resize/400x600/-/format/webp/IMG_0012.jpeg.webp" },
+        { "file": "clay-press-14.jpg", "url": "https://optim.tildacdn.net/tild3463-3731-4165-b830-646164653432/-/resize/400x600/-/format/webp/IMG_0102.jpeg.webp" },
+        { "file": "clay-press-15.jpg", "url": "https://optim.tildacdn.net/tild6466-6666-4837-a561-316534353265/-/resize/800x600/-/format/webp/IMG_0183_1.jpeg.webp" },
+        { "file": "clay-press-16.jpg", "url": "https://optim.tildacdn.net/tild3430-3038-4565-b162-656466333134/-/format/webp/IMG_0187.jpeg.webp" }
+      ]
+    },
+    "the-extruder": {
+      "lead": {
+        "file": "cabinet-open.jpg",
+        "url": "https://optim.tildacdn.net/tild3234-3763-4164-a237-356336636435/-/resize/800x600/-/format/webp/_LOW_alphabet_aerobi.jpg.webp"
+      },
+      "gallery": [
+        { "file": "cabinet-complete.jpg", "url": "https://static.tildacdn.net/tild3166-6532-4731-b066-353430626536/_LOW_alphabet_aerobi.jpg" },
+        { "file": "extruder-01.jpg", "url": "https://optim.tildacdn.net/tild6233-3332-4966-b234-633937386263/-/resize/800x600/-/format/webp/82387332_53042508423.jpg.webp" },
+        { "file": "extruder-02.jpg", "url": "https://optim.tildacdn.net/tild3065-6561-4663-b038-353835356661/-/resize/400x600/-/format/webp/43816388_51551394891.jpg.webp" },
+        { "file": "extruder-03.jpg", "url": "https://optim.tildacdn.net/tild6131-6164-4263-b032-383865313436/-/resize/400x600/-/format/webp/42003294_24980251906.jpg.webp" },
+        { "file": "extruder-04.jpg", "url": "https://optim.tildacdn.net/tild6234-3135-4235-b338-363431656166/-/resize/800x600/-/format/webp/125899087_2878609392.jpg.webp" },
+        { "file": "extruder-05.jpg", "url": "https://optim.tildacdn.net/tild3937-6135-4064-b731-663136326362/-/resize/800x600/-/format/webp/27578430_33674057682.jpg.webp" },
+        { "file": "extruder-06.jpg", "url": "https://optim.tildacdn.net/tild6133-6137-4464-b336-316333306636/-/resize/400x600/-/format/webp/67132117_71463731566.jpg.webp" },
+        { "file": "extruder-07.jpg", "url": "https://optim.tildacdn.net/tild3563-3733-4364-b334-616163616464/-/resize/800x600/-/format/webp/IMG_0269.jpeg.webp" },
+        { "file": "extruder-08.jpg", "url": "https://optim.tildacdn.net/tild3064-3365-4266-b038-303534363338/-/resize/400x600/-/format/webp/26068676_20739678315.jpg.webp" },
+        { "file": "extruder-09.jpg", "url": "https://optim.tildacdn.net/tild6166-3833-4438-b161-313162633863/-/resize/400x600/-/format/webp/IMG_0250.jpeg.webp" },
+        { "file": "extruder-10.jpg", "url": "https://optim.tildacdn.net/tild3765-3131-4438-b732-343838353030/-/resize/400x600/-/format/webp/IMG_0102.jpg.webp" },
+        { "file": "extruder-11.jpg", "url": "https://optim.tildacdn.net/tild3735-3463-4562-a330-633461636534/-/resize/400x600/-/format/webp/IMG_0125.jpg.webp" },
+        { "file": "extruder-12.jpg", "url": "https://optim.tildacdn.net/tild3432-3635-4266-a236-613534396535/-/resize/800x600/-/format/webp/IMG_0089.jpg.webp" },
+        { "file": "extruder-13.jpg", "url": "https://optim.tildacdn.net/tild3636-3832-4433-b662-643166633164/-/resize/800x600/-/format/webp/IMG_0042.jpg.webp" },
+        { "file": "extruder-14.jpg", "url": "https://optim.tildacdn.net/tild3565-3866-4462-b135-346431633730/-/resize/400x600/-/format/webp/Photo_2016-02-24_19_.jpeg.webp" },
+        { "file": "extruder-15.jpg", "url": "https://optim.tildacdn.net/tild3066-6363-4566-b336-333966323363/-/format/webp/IMG_0118.jpg.webp" }
+      ]
+    },
+    "internet-connected-sourdough": {
+      "lead": {
+        "file": "sourdough-robot.jpg",
+        "url": "https://optim.tildacdn.net/tild6630-3865-4234-b536-646535616364/-/cover/560x720/center/center/-/format/webp/surdegsrobot.jpg.webp"
+      },
+      "gallery": [
+        { "file": "sourdough-01.jpg", "url": "https://optim.tildacdn.net/tild3430-6330-4637-b266-316336356161/-/cover/560x720/center/center/-/format/webp/IMG_1125.jpg.webp" },
+        { "file": "sourdough-02.jpg", "url": "https://optim.tildacdn.net/tild6338-6239-4262-b832-633234633335/-/cover/560x720/center/center/-/format/webp/IMG_2887.jpg.webp" },
+        { "file": "sourdough-03.jpg", "url": "https://thb.tildacdn.net/tild6631-3065-4062-b966-633362656163/-/resizeb/20x/IMG_2888.jpg" },
+        { "file": "electronics.png", "url": "https://thb.tildacdn.net/tild3034-3836-4039-b231-626461313162/-/resizeb/20x/elektronik.png" },
+        { "file": "cad-models.png", "url": "https://thb.tildacdn.net/tild3430-6538-4431-b863-353634316430/-/resizeb/20x/3d-modeller.png" }
+      ]
+    }
+  },
+  "home": {
+    "teasers": [
+      { "file": "tiunda-school.jpg", "url": "https://optim.tildacdn.net/tild3332-3732-4933-b361-663634666337/-/resize/800x1000/-/format/webp/Nya-Tiundaskolan-C-F.jpg.webp" },
+      { "file": "the-extruder.png", "url": "https://static.tildacdn.net/tild3533-3639-4364-a363-393734646665/noroot.png" },
+      { "file": "internet-connected-sourdough.jpg", "url": "https://optim.tildacdn.net/tild6539-6630-4535-a237-633334343133/-/format/webp/14561782_40378534334.jpg.webp" }
+    ]
+  }
+}

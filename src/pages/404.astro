@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../data/site';
+---
+
+<BaseLayout
+  title={`Not found — ${site.name}`}
+  description="That page is not here."
+>
+  <section class="hero">
+    <div class="hero__inner">
+      <div class="hero__text">
+        <h1 class="hero__title">
+          <span class="line">This&nbsp;page</span>
+          <span class="line line--accent">went&nbsp;missing.</span>
+        </h1>
+        <p class="hero__lede">
+          Nothing lives at that address. The work is all on the
+          <a href="/">front page</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

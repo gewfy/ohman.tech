@@ -1,0 +1,74 @@
+---
+import '@fontsource-variable/archivo/standard.css';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import '@fontsource/ibm-plex-mono/600.css';
+import '../styles/site.css';
+
+import Traces from '../components/Traces.astro';
+import Masthead from '../components/Masthead.astro';
+import Identity from '../components/Identity.astro';
+import Contact from '../components/Contact.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import Lightbox from '../components/Lightbox.astro';
+import { site } from '../data/site';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Absolute or root-relative path to the sharing image */
+  image?: string;
+  /** Adds the lightbox markup and behaviour */
+  gallery?: boolean;
+}
+
+const {
+  title,
+  description = site.description,
+  image = '/og.jpg',
+  gallery = false
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const social = new URL(image, Astro.site).href;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={social} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <slot name="head" />
+  </head>
+
+  <body>
+    <Traces />
+    <Masthead />
+
+    <main id="top">
+      <Identity />
+      <slot />
+      <Contact />
+      <SiteFooter />
+    </main>
+
+    {gallery && <Lightbox />}
+  </body>
+</html>

@@ -1,0 +1,45 @@
+---
+/**
+ * Full-screen viewer shared by every `.shot` on the page: the gallery tiles
+ * and the lead photograph alike. Markup only — gallery.js does the work.
+ */
+---
+
+<div
+  class="viewer"
+  id="viewer"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Image viewer"
+  hidden
+>
+  <div class="viewer__stage">
+    <img class="viewer__img" alt="" />
+  </div>
+
+  <img
+    class="viewer__mark"
+    src="/logo/lockup-white-s.svg"
+    alt=""
+    width="473"
+    height="473"
+    aria-hidden="true"
+  />
+
+  <p class="viewer__caption"></p>
+  <p class="viewer__count label"></p>
+
+  <button class="viewer__btn viewer__close" type="button" aria-label="Close">
+    ✕
+  </button>
+  <button class="viewer__btn viewer__prev" type="button" aria-label="Previous image">
+    ←
+  </button>
+  <button class="viewer__btn viewer__next" type="button" aria-label="Next image">
+    →
+  </button>
+</div>
+
+<script>
+  import '../scripts/gallery.js';
+</script>

@@ -1,0 +1,706 @@
+/* ═══════════════════════════════════════════════════════════════
+   Ohman Mechatronics
+   Light gallery sheet, industrial grotesk, grayscale palette.
+   ═══════════════════════════════════════════════════════════════ */
+
+@import './tokens.css';
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-variation-settings: 'wdth' 100, 'wght' 400;
+  font-size: clamp(1rem, .35vw + .92rem, 1.1rem);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; text-decoration: none; }
+ol, ul, dl, dd { margin: 0; padding: 0; list-style: none; }
+h1, h2, h3, p { margin: 0; }
+button {
+  font: inherit; color: inherit; background: none; border: 0; cursor: pointer;
+  appearance: none; -webkit-appearance: none;
+}
+::selection { background: var(--accent); color: #fff; }
+
+/* The routed board sits between the background and the content */
+.pcb {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none;
+  transition: opacity var(--t-slow) linear;
+}
+main { position: relative; z-index: 1; }
+
+/* Metadata nodes brighten while the router is landed on their section */
+[data-node] {
+  transition: color var(--t-slow) var(--servo-soft);
+}
+[data-node].is-live { color: var(--ink-2); }
+
+/* Very fine film grain so the paper reads as a printed surface, not a void */
+.grain {
+  position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+  opacity: .045; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ─────────────────────────── Shared atoms ─────────────────────────── */
+
+.label {
+  font-family: var(--mono);
+  font-size: .6875rem;
+  font-weight: 500;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Real text for assistive tech while the visible span scrambles */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.accent { color: var(--accent); }
+.dim { color: var(--ink-3); }
+
+/* Framed media */
+.frame { position: relative; }
+
+/* ─────────────────────────── Identity ─────────────────────────── */
+
+.identity {
+  display: block;
+  padding: var(--id-pad) var(--gut) 0;
+}
+.identity__lockup {
+  display: block;
+  height: var(--brand-h);
+  width: calc(var(--brand-h) * 827 / 485);
+  max-width: none;
+}
+
+/* Compact bar — only on after the identity lockup has left the viewport.
+   Opacity on this element flattens backdrop-filter, so show/hide is
+   visibility + transform; the unprefixed filter comes last so it survives
+   minification (Chromium ignores -webkit-backdrop-filter). */
+.masthead {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center;
+  padding: .75rem var(--gut);
+  background: linear-gradient(to bottom, rgba(255,255,255,.96) 0%, rgba(255,255,255,.82) 55%, rgba(255,255,255,0) 100%);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  pointer-events: none;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: transform var(--t-med) var(--servo-soft), visibility 0s linear var(--t-fast);
+}
+.masthead.is-on {
+  pointer-events: auto;
+  visibility: visible;
+  transform: none;
+  transition: transform var(--t-med) var(--servo-soft), visibility 0s;
+}
+
+.masthead__brand {
+  display: flex; align-items: center; gap: .7rem;
+}
+.masthead__mark {
+  display: block;
+  width: var(--badge-h);
+  height: var(--badge-h);
+  max-width: none;
+  flex: none;
+}
+.masthead__word {
+  font-size: clamp(.875rem, 1.2vw, 1.0625rem);
+  font-variation-settings: 'wdth' 108, 'wght' 600;
+  letter-spacing: -.015em;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .masthead__brand { gap: .5rem; }
+  .masthead__word { font-size: .6875rem; }
+}
+
+/* ─────────────────────────── Hero ─────────────────────────── */
+
+.hero {
+  position: relative;
+  min-height: calc(100svh - var(--brand-h) - var(--id-pad));
+  display: flex; flex-direction: column; justify-content: center;
+  padding: clamp(.75rem, 1.6vw, 1.5rem) var(--gut) 0;
+  overflow: hidden;
+}
+
+.hero__inner {
+  position: relative;
+  width: 100%; max-width: var(--maxw); margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: center;
+  padding-bottom: 5rem;
+}
+
+.hero__text > * + * { margin-top: 1.75rem; }
+
+.hero__title {
+  font-size: clamp(2.6rem, 6.2vw, 6rem);
+  line-height: .92;
+  letter-spacing: -.035em;
+  font-variation-settings: 'wdth' 106, 'wght' 700;
+  text-transform: none;
+  /* Line boxes are shorter than the glyphs; this keeps descenders (g, y)
+     inside the hero, which clips overflow, without opening the lines. */
+  padding-bottom: .16em;
+}
+.hero__title .line { display: block; }
+.hero__title .line--accent { color: var(--accent); }
+
+.hero__lede {
+  max-width: 34ch;
+  font-size: clamp(1rem, .5vw + .9rem, 1.2rem);
+  color: var(--ink-2);
+  line-height: 1.6;
+}
+
+/* Hero figure */
+.hero__figure { margin: 0; }
+.hero__figure .frame { overflow: hidden; }
+.hero__figure img {
+  width: 100%;
+  height: auto;
+  filter: saturate(.96) contrast(1.02) brightness(1);
+  transition: transform var(--t-slow) var(--servo-soft), filter var(--t-med) linear;
+}
+.hero__figure:hover img { transform: scale(1.03); filter: saturate(1) contrast(1.04) brightness(1); }
+
+/* A project header has no hero photograph to centre against, so it is held
+   at the top, a share of the same box the home hero centres inside — which
+   puts the title on roughly the line it sits on there. */
+.hero--project {
+  min-height: auto;
+  justify-content: flex-start;
+  padding-top: clamp(
+    2rem,
+    calc((100svh - var(--brand-h) - var(--id-pad)) * .16),
+    10rem
+  );
+}
+/* The section below carries the gap; doubling it strands the title */
+.hero--project .hero__inner { padding-bottom: 0; }
+
+@media (max-width: 900px) {
+  :root { --brand-h: clamp(80px, 13vw, 118px); --badge-h: 36px; --id-pad: 1.25rem; }
+  .hero { min-height: auto; padding-top: clamp(2.5rem, 6vw, 5rem); }
+  .hero--project { padding-top: clamp(2.5rem, 6vw, 5rem); }
+  .hero__inner { grid-template-columns: 1fr; gap: 2.5rem; padding-bottom: 3rem; }
+}
+
+@media (max-width: 640px) {
+  :root { --brand-h: 76px; --badge-h: 34px; }
+}
+
+/* ─────────────────────────── Sections ─────────────────────────── */
+
+.section {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: clamp(4.5rem, 9vw, 9rem) var(--gut);
+}
+
+/* About */
+.about__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: start;
+}
+.lede {
+  font-size: clamp(1.35rem, 2.6vw, 2.35rem);
+  line-height: 1.28;
+  letter-spacing: -.02em;
+  font-variation-settings: 'wdth' 104, 'wght' 500;
+  text-wrap: balance;
+}
+
+.specs { display: grid; gap: 0; border-top: var(--rule) solid var(--line-soft); }
+.specs > div {
+  display: grid; grid-template-columns: 8.5rem 1fr;
+  gap: 1rem;
+  padding: .8rem 0;
+  border-bottom: var(--rule) solid var(--line-soft);
+}
+.specs dt {
+  font-family: var(--mono); font-size: .6875rem; font-weight: 500;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3);
+  padding-top: .15rem;
+}
+.specs dd { font-size: .9375rem; color: var(--ink); }
+.specs dd { display: flex; align-items: center; gap: .5rem; }
+.pulse {
+  width: 7px; height: 7px; background: var(--accent);
+  box-shadow: 0 0 0 0 rgba(42,42,42,.45);
+  animation: pulse 2.4s var(--servo-soft) infinite;
+  flex: none;
+}
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(42,42,42,.4); }
+  70%  { box-shadow: 0 0 0 9px rgba(42,42,42,0); }
+  100% { box-shadow: 0 0 0 0 rgba(42,42,42,0); }
+}
+
+@media (max-width: 900px) {
+  .about__body { grid-template-columns: 1fr; gap: 2.5rem; }
+}
+
+/* ─────────────────────────── Work index ─────────────────────────── */
+
+.index { display: grid; gap: clamp(3rem, 7vw, 7rem); }
+
+.item__link {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: center;
+}
+.item--flip .item__link { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.item--flip .item__media { order: 3; }
+.item--flip .item__meta  { order: 2; }
+
+.item__media {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-2);
+}
+.item__media::after {
+  content: ''; position: absolute; inset: 0;
+  border: var(--rule) solid var(--line);
+  pointer-events: none;
+}
+.item__media img {
+  width: 100%;
+  height: auto;
+  filter: saturate(.94) brightness(1);
+  transition: transform var(--t-slow) var(--servo-soft), filter var(--t-med) linear;
+}
+.item__link:hover .item__media img { transform: scale(1.045); filter: saturate(1) brightness(1); }
+
+.item__meta > * + * { margin-top: 1.125rem; }
+.item__title {
+  font-size: clamp(1.9rem, 4.2vw, 3.6rem);
+  line-height: .95;
+  letter-spacing: -.03em;
+  font-variation-settings: 'wdth' 108, 'wght' 600;
+}
+.item__desc { max-width: 42ch; color: var(--ink-2); font-size: clamp(1.0625rem, .35vw + .98rem, 1.1875rem); line-height: 1.62; }
+
+/* Metadata, not controls: plain mono caps with a square bullet between
+   them, so the only thing that looks pressable is the button below. */
+.tags { display: flex; flex-wrap: wrap; column-gap: 1.1rem; row-gap: .35rem; }
+.tags li {
+  position: relative;
+  font-family: var(--mono);
+  font-size: .6875rem; font-weight: 500;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink-2);
+}
+.tags li + li::before {
+  content: '';
+  position: absolute; left: -.62rem; top: 50%;
+  width: 3px; height: 3px;
+  background: currentColor;
+  transform: translateY(-50%);
+}
+
+/* The whole card is the link, so the call to action is the one element
+   styled to look pressable. */
+.item__go {
+  display: inline-flex; align-items: center; gap: .7rem;
+  font-family: var(--sans);
+  font-size: .875rem;
+  font-variation-settings: 'wdth' 104, 'wght' 650;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--bg);
+  background: var(--ink);
+  padding: .9rem 1.55rem;
+  transition: transform var(--t-med) var(--servo-soft);
+}
+.item__meta > .item__go { margin-top: 1.75rem; }
+.item__go::after {
+  content: '→';
+  color: currentColor;
+  transition: transform var(--t-med) var(--servo);
+  font-family: Helvetica;
+}
+.item__link:hover .item__go::after { transform: translateX(8px); }
+
+@media (max-width: 900px) {
+  .item__link,
+  .item--flip .item__link { grid-template-columns: 1fr; }
+  .item__media { order: 1 !important; }
+  .item__meta  { order: 2 !important; }
+}
+
+/* ─────────────────────────── Contact ─────────────────────────── */
+
+.contact__title {
+  font-size: clamp(1.9rem, 5.6vw, 4.5rem);
+  line-height: 1.02;
+  letter-spacing: -.032em;
+  font-variation-settings: 'wdth' 110, 'wght' 650;
+  margin-bottom: clamp(2.5rem, 5vw, 4rem);
+}
+
+/* One address in type, everything else as a solid glyph — no rules, no
+   outlines, nothing that reads as another trace. */
+.contact__mail {
+  display: inline-block;
+  font-size: clamp(1.35rem, 3.4vw, 2.6rem);
+  font-variation-settings: 'wdth' 104, 'wght' 550;
+  letter-spacing: -.02em;
+  text-decoration: underline;
+  text-underline-offset: .18em;
+  color: var(--ink);
+  transition: opacity var(--t-med) linear;
+}
+.contact__mail:hover { opacity: .55; }
+
+.social {
+  display: flex; flex-wrap: wrap; gap: .55rem;
+  margin-top: clamp(2rem, 4vw, 3.25rem);
+}
+.social__link {
+  display: grid; place-items: center;
+  width: 3rem; height: 3rem;
+  background: var(--ink);
+  color: var(--bg);
+  transition: transform var(--t-med) var(--servo-soft), opacity var(--t-med) linear;
+}
+.social__link:hover { transform: translateY(-3px); }
+.social__link svg { width: 1.5rem; height: 1.5rem; fill: currentColor; }
+
+@media (max-width: 640px) {
+  .social__link { width: 2.75rem; height: 2.75rem; }
+}
+
+/* ─────────────────────────── Project page ─────────────────────────── */
+
+/* Keeps its own proportions instead of the gallery's fixed ratios */
+.project__lead { margin: 0; }
+.project__lead .shot { aspect-ratio: auto; height: auto; }
+.project__lead .shot img { height: auto; }
+
+/* Copy, then the specs, then the machine itself — the photograph column is
+   exactly one gallery tile wide, so its edges meet the grid below. */
+.project__body {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: clamp(3.5rem, 8vw, 7rem) var(--gut);
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(0, .5fr)
+    calc((100% - 2 * var(--tile-gap)) / 3);
+  gap: clamp(2rem, 4.5vw, 4.5rem);
+  align-items: start;
+}
+.prose > * + * { margin-top: 1.6rem; }
+.prose p {
+  font-size: clamp(1.0625rem, .35vw + 1rem, 1.25rem);
+  line-height: 1.68;
+  color: var(--ink-2);
+  max-width: 62ch;
+}
+.prose a {
+  color: var(--ink);
+  font-variation-settings: 'wdth' 100, 'wght' 650;
+  text-decoration: underline;
+  text-underline-offset: .18em;
+  transition: opacity var(--t-med) linear;
+}
+.prose a:hover { opacity: .55; }
+
+/* Borrowed words: hanging quotation marks and italic so the line reads as
+   a quote, not as larger body copy. Cite keeps the em-dash in ::before. */
+.pullquote { margin: 0; quotes: "“" "”"; }
+.pullquote p {
+  max-width: 46ch;
+  font-size: clamp(1.375rem, 1.1vw + 1.1rem, 1.875rem);
+  line-height: 1.28;
+  font-style: italic;
+  font-variation-settings: 'wdth' 104, 'wght' 550;
+  text-wrap: pretty;
+  padding-left: .55em;
+  text-indent: -.55em;
+}
+.pullquote p::before { content: "“"; }
+.pullquote p::after { content: "”"; }
+.pullquote cite {
+  display: block;
+  margin-top: 1rem;
+  font-family: var(--mono);
+  font-size: .6875rem; font-weight: 500;
+  font-style: normal;
+  letter-spacing: .12em;
+  color: var(--ink-3);
+}
+.pullquote cite a { text-decoration: underline; text-underline-offset: .2em; }
+.pullquote cite::before { content: '— '; }
+
+.facts { display: grid; gap: 1.5rem; }
+.facts dt {
+  font-family: var(--mono);
+  font-size: .625rem; font-weight: 500;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: .35rem;
+}
+.facts dd {
+  font-size: 1rem;
+  line-height: 1.5;
+  font-variation-settings: 'wdth' 102, 'wght' 500;
+}
+.facts a { color: var(--ink); transition: opacity var(--t-med) linear; }
+.facts a:hover { opacity: .55; }
+
+/* No spec column: the lead grows to two gallery tiles so its right edge
+   still meets the grid below. */
+.project__body--no-facts {
+  grid-template-columns:
+    minmax(0, 1fr)
+    calc((2 * (100% - 2 * var(--tile-gap)) / 3) + var(--tile-gap));
+}
+
+@media (max-width: 1100px) {
+  /* No room for three columns: the photograph and specs share the top row
+     and the copy runs full width beneath them. */
+  .project__body { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .project__lead { grid-row: 1; grid-column: 1; }
+  .facts { grid-row: 1; grid-column: 2; }
+  .prose { grid-row: 2; grid-column: 1 / -1; }
+
+  /* Without facts the lead already has the top row to itself — let it go
+     full width rather than sitting in a squeezed second column. */
+  .project__body--no-facts { grid-template-columns: 1fr; }
+  .project__body--no-facts .project__lead { grid-row: 1; grid-column: 1; }
+  .project__body--no-facts .prose { grid-row: 2; grid-column: 1; }
+}
+
+@media (max-width: 900px) {
+  .project__body { grid-template-columns: 1fr; }
+  .project__lead { grid-row: 1; grid-column: 1; }
+  .prose { grid-row: 2; grid-column: 1; }
+  .facts { grid-row: 3; grid-column: 1; }
+}
+
+/* Credits and pointers sit after the photographs, as footnotes to the build */
+.project__notes {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: clamp(2.5rem, 5vw, 4rem) var(--gut) 0;
+}
+
+/* ─────────────────────────── Gallery ─────────────────────────── */
+
+/* Three even columns with the tiles grouped by shape, so every row lands
+   on one ratio and the block reads as a grid rather than a pile. */
+.gallery {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0 var(--gut);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-flow: dense;
+  gap: var(--tile-gap);
+}
+
+/* Every band is two row units tall: an upright tile holds one column, a wide
+   tile two, and a stack splits its column into those same two units. Mixing
+   the three keeps the rhythm loose while the bands stay flush. */
+.gallery > * { grid-row: span 2; }
+.gallery > .shot { aspect-ratio: 4 / 5; }
+.gallery > .shot[data-ar='wide'] { grid-column: span 2; aspect-ratio: 3 / 2; }
+
+.gallery__stack {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: var(--tile-gap);
+  /* The ratio proposes the band height; filling it keeps the pair flush when
+     a wide neighbour turns out taller, exactly as a single tile does. */
+  aspect-ratio: 4 / 5;
+  width: 100%;
+  height: 100%;
+}
+
+.shot {
+  display: block;
+  width: 100%;
+  /* The ratio sets the band height; filling it keeps tiles flush when a
+     neighbour of another shape turns out slightly taller. */
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+  background: var(--bg-2);
+  cursor: zoom-in;
+}
+
+.shot img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  filter: saturate(.94);
+  transition: transform var(--t-slow) var(--servo-soft), filter var(--t-med) linear;
+}
+.shot:hover img { transform: scale(1.04); filter: saturate(1); }
+.shot:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
+
+@media (max-width: 1100px) {
+  .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .gallery { grid-template-columns: minmax(0, 1fr); }
+  .gallery > .shot[data-ar='wide'] { grid-column: span 1; }
+}
+
+/* ─────────────────────────── Image viewer ─────────────────────────── */
+
+.viewer[hidden] { display: none; }
+.viewer {
+  position: fixed; inset: 0; z-index: 300;
+  background: #000;
+  /* Control tile size and inset, shared by the mark, close and arrows */
+  --ctrl:     3rem;
+  --ctrl-pad: clamp(.75rem, 2vw, 1.5rem);
+}
+
+.viewer__stage {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+
+.viewer__img {
+  display: block;
+  max-width: 100vw;
+  max-height: 100dvh;
+  width: auto; height: auto;
+  cursor: zoom-in;
+  transition: transform var(--t-med) var(--servo-soft);
+  will-change: transform;
+}
+.viewer.is-zoomed .viewer__img { cursor: zoom-out; transition: transform .12s linear; }
+
+/* Anchored to the sheet, not the photograph, so it holds still between shots */
+.viewer__caption {
+  position: absolute;
+  left: 0; right: 0; bottom: clamp(.75rem, 2vw, 1.5rem);
+  margin: 0 auto;
+  width: max-content;
+  max-width: min(88%, 62ch);
+  padding: .6rem 1.1rem;
+  font-family: var(--mono);
+  font-size: .6875rem; font-weight: 500;
+  letter-spacing: .1em;
+  text-align: center;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .75);
+  background: var(--glass);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  pointer-events: none;
+}
+.viewer__caption:empty { display: none; }
+/* Credits link out, so they take pointer events back */
+.viewer__caption a {
+  pointer-events: auto;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: .2em;
+  transition: opacity var(--t-med) linear;
+}
+.viewer__caption a:hover { opacity: .6; }
+
+/* Mirrors the close button across the sheet */
+.viewer__mark {
+  position: absolute;
+  top: var(--ctrl-pad); left: var(--ctrl-pad);
+  width: var(--ctrl); height: var(--ctrl);
+  max-width: none;
+  pointer-events: none;
+}
+
+.viewer__count {
+  position: absolute;
+  top: var(--ctrl-pad);
+  left: calc(var(--ctrl-pad) + var(--ctrl) + .9rem);
+  height: var(--ctrl);
+  display: flex; align-items: center;
+  color: rgba(255, 255, 255, .7);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .75);
+}
+
+/* White glyph over a black halo, so it reads against whatever the blur
+   happens to pick up from the photograph underneath */
+.viewer__btn {
+  position: absolute;
+  display: grid; place-items: center;
+  width: var(--ctrl); height: var(--ctrl);
+  background: var(--glass);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  color: #fff;
+  text-shadow: 0 0 2px rgba(0, 0, 0, .9), 0 1px 4px rgba(0, 0, 0, .55);
+  font-size: 1rem;
+  line-height: 1;
+  font-family: Helvetica;
+  transition: transform var(--t-med) var(--servo-soft);
+}
+.viewer__btn:hover { transform: scale(1.08); }
+.viewer__close { top: var(--ctrl-pad); right: var(--ctrl-pad); }
+.viewer__prev  { left: var(--ctrl-pad);  top: 50%; margin-top: calc(var(--ctrl) / -2); }
+.viewer__next  { right: var(--ctrl-pad); top: 50%; margin-top: calc(var(--ctrl) / -2); }
+
+@media (max-width: 640px) {
+  .viewer { --ctrl: 2.6rem; }
+  .viewer__prev { left: .4rem; }
+  .viewer__next { right: .4rem; }
+}
+
+/* ─────────────────────────── Footer ─────────────────────────── */
+
+.footer {
+  padding: clamp(3rem, 6vw, 5rem) var(--gut) 2.5rem;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  display: flex; flex-direction: column; align-items: center; gap: 2rem;
+  text-align: center;
+}
+.footer__lockup { width: 6rem; height: auto; opacity: .92; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .pulse { animation: none; }
+  .masthead { transition: none; visibility: hidden; }
+  .masthead.is-on { visibility: visible; }
+  .shot img,
+  .viewer__img,
+  .viewer__btn { transition: none; }
+}

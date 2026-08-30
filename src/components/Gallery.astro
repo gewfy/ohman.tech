@@ -1,0 +1,49 @@
+---
+import Shot from './Shot.astro';
+import type { ShotData } from './Shot.astro';
+
+interface Props {
+  items: ShotData[];
+  label?: string;
+}
+
+const {
+  items,
+  label = 'Build photographs — select an image to open it full screen'
+} = Astro.props;
+
+/**
+ * Bands of three columns: an upright tile takes one, a wide tile two, and a
+ * pair of `half` shots splits one column into two rows. Consecutive halves
+ * are what make a stack, so authors only order the list.
+ */
+type Band = { kind: 'shot'; shot: ShotData } | { kind: 'stack'; shots: ShotData[] };
+
+const bands: Band[] = [];
+for (const shot of items) {
+  const open = bands.at(-1);
+  if (shot.layout === 'half' && open?.kind === 'stack' && open.shots.length < 2) {
+    open.shots.push(shot);
+  } else if (shot.layout === 'half') {
+    bands.push({ kind: 'stack', shots: [shot] });
+  } else {
+    bands.push({ kind: 'shot', shot });
+  }
+}
+---
+
+<section class="gallery" data-gallery aria-label={label}>
+  {
+    bands.map((band) =>
+      band.kind === 'shot' ? (
+        <Shot {...band.shot} variant={band.shot.layout ?? 'tall'} />
+      ) : (
+        <div class="gallery__stack">
+          {band.shots.map((shot) => (
+            <Shot {...shot} variant="half" />
+          ))}
+        </div>
+      )
+    )
+  }
+</section>

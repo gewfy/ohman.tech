@@ -1,0 +1,16 @@
+---
+import { site } from '../data/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <img
+    class="footer__lockup"
+    src="/logo/lockup-white-s.svg"
+    alt={site.name}
+    width="400"
+    height="400"
+  />
+  <p class="label">{site.name} — {site.city} {year}</p>
+</footer>

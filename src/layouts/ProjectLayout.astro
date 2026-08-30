@@ -1,0 +1,91 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Gallery from '../components/Gallery.astro';
+import Shot from '../components/Shot.astro';
+import Video from '../components/Video.astro';
+import { getImage } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import { site } from '../data/site';
+
+interface Props {
+  project: CollectionEntry<'projects'>['data'];
+}
+
+const { project } = Astro.props;
+const { title, titleLines, description, quote, lead, facts, gallery, video, notes } =
+  project;
+
+const hasFacts = (facts?.length ?? 0) > 0;
+
+const share = await getImage({
+  src: lead.src,
+  width: 1200,
+  height: 630,
+  fit: 'cover',
+  format: 'jpeg'
+});
+---
+
+<BaseLayout
+  title={`${title} — ${site.name}`}
+  description={description}
+  image={share.src}
+  gallery
+>
+  <article class="project">
+    <header class="hero hero--project">
+      <div class="hero__inner">
+        <h1 class="hero__title">
+          {titleLines.map((line) => <span class="line">{line}</span>)}
+        </h1>
+      </div>
+    </header>
+
+    <div class:list={['project__body', { 'project__body--no-facts': !hasFacts }]}>
+      <div class="prose">
+        {
+          quote && (
+            <blockquote class="pullquote">
+              <p set:html={quote.text} />
+              <cite>
+                {quote.href ? <a href={quote.href}>{quote.cite}</a> : quote.cite}
+              </cite>
+            </blockquote>
+          )
+        }
+        <slot />
+      </div>
+
+      {
+        facts && facts.length > 0 && (
+          <dl class="facts">
+            {facts.map((fact) => (
+              <div>
+                <dt>{fact.label}</dt>
+                <dd set:html={fact.value} />
+              </div>
+            ))}
+          </dl>
+        )
+      }
+
+      <figure class="project__lead">
+        <Shot {...lead} variant="lead" eager />
+      </figure>
+    </div>
+
+    {video && <Video {...video} />}
+
+    {gallery.length > 0 && <Gallery items={gallery} />}
+
+    {
+      notes.length > 0 && (
+        <div class="project__notes prose">
+          {notes.map((note) => (
+            <p set:html={note} />
+          ))}
+        </div>
+      )
+    }
+  </article>
+</BaseLayout>
